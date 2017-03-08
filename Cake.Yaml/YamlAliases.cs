@@ -4,6 +4,7 @@ using Cake.Core.IO;
 using Cake.Core;
 using System.IO;
 using System.Text;
+using YamlDotNet.Core;
 
 namespace Cake.Yaml
 {
@@ -26,9 +27,14 @@ namespace Cake.Yaml
         {
             T result = default(T);
 
-            var d = new YamlDotNet.Serialization.Deserializer ();
-            using (var tr = File.OpenText (filename.MakeAbsolute (context.Environment).FullPath))
-                result = d.Deserialize<T> (tr);
+            var d = new YamlDotNet.Serialization.Deserializer();
+
+            using (var tr = File.OpenText(filename.MakeAbsolute(context.Environment).FullPath))
+            {
+                var reader = new EventReader(new MergingParser(new Parser(tr)));
+                result = d.Deserialize<T>(reader);
+                            
+            }
 
             return result;
         }
